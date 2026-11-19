@@ -1,0 +1,187 @@
+openapi: 3.0.3
+info:
+  title: Team Management API
+  description: |
+    API-first contract for the club team-management application. Team and
+    family identifiers select resources but do not grant authorization.
+  version: 1.0.0
+servers:
+  - url: /api/v1
+security:
+  - sessionCookie: []
+    csrfHeader: []
+paths:
+  /csrf:
+    get:
+      operationId: getCsrfToken
+      summary: Obtain a CSRF token for this browser session
+      security: []
+      responses:
+        "200":
+          description: CSRF token and required request header name
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CsrfToken"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /session:
+    get:
+      operationId: getSession
+      summary: Read the authenticated account and roles
+      responses:
+        "200":
+          description: Current authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      operationId: createSession
+      summary: Authenticate and establish a browser session
+      description: Requires the current CSRF token. Fetch a new token after authentication.
+      security:
+        - csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignInRequest"
+      responses:
+        "200":
+          description: Authentication succeeded; session cookie is set
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    delete:
+      operationId: deleteSession
+      summary: Invalidate the current authenticated session
+      responses:
+        "204":
+          description: Session invalidated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+  /openapi.yaml:
+    get:
+      operationId: getApiSpecification
+      summary: Read the machine-readable API contract
+      responses:
+        "200":
+          description: The canonical OpenAPI specification
+          content:
+            application/yaml:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+    csrfHeader:
+      type: apiKey
+      in: header
+      name: X-CSRF-TOKEN
+  schemas:
+    CsrfToken:
+      type: object
+      required: [headerName, token]
+      properties:
+        headerName:
+          type: string
+          example: X-CSRF-TOKEN
+        token:
+          type: string
+          writeOnly: true
+    SignInRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          writeOnly: true
+    Session:
+      type: object
+      required: [userId, email, roles]
+      properties:
+        userId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+          nullable: true
+        roles:
+          type: array
+          items:
+            type: string
+    Problem:
+      type: object
+      required: [title, status, correlationId]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri-reference
+        correlationId:
+          type: string
+          format: uuid
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+  responses:
+    BadRequest:
+      description: Request validation failed
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    Unauthorized:
+      description: Authentication is required or credentials are invalid
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"

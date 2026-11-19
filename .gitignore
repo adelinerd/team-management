@@ -11,6 +11,17 @@ node_modules
 dist
 dist-ssr
 *.local
+.env*
+target/
+build/
+*.class
+*.jar
+coverage/
+playwright-report/
+test-results/
+src/generated/openapi/
+Thumbs.db
+*.tmp
 
 # Editor directories and files
 .vscode/*

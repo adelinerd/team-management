@@ -1,0 +1,317 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-foundation-tables
+      author: team-management
+      changes:
+        - createTable:
+            tableName: club
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: external_key
+                  type: text
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: time_zone
+                  type: text
+                  defaultValue: Europe/Berlin
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: season
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: club_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_season_club
+                    references: club(id)
+              - column:
+                  name: name
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: team
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: club_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_team_club
+                    references: club(id)
+              - column:
+                  name: season_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_team_season
+                    references: season(id)
+              - column:
+                  name: name
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: user_account
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: text
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password_hash
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: display_name
+                  type: text
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: club_role
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: club_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_club_role_club
+                    references: club(id)
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_club_role_user
+                    references: user_account(id)
+              - column:
+                  name: role
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: revoked_at
+                  type: timestamp with time zone
+        - createTable:
+            tableName: team_role_assignment
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: team_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_team_role_team
+                    references: team(id)
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_team_role_user
+                    references: user_account(id)
+              - column:
+                  name: role
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: manager_slot
+                  type: integer
+              - column:
+                  name: active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: appointed_by
+                  type: uuid
+                  constraints:
+                    foreignKeyName: fk_team_role_actor
+                    references: user_account(id)
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: revoked_at
+                  type: timestamp with time zone
+        - createTable:
+            tableName: audit_event
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: club_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_audit_club
+                    references: club(id)
+              - column:
+                  name: actor_user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_audit_actor
+                    references: user_account(id)
+              - column:
+                  name: event_type
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: entity_type
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: entity_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: occurred_at
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: details
+                  type: text
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: team
+            indexName: ix_team_club_season
+            columns:
+              - column:
+                  name: club_id
+              - column:
+                  name: season_id
+        - sql:
+            splitStatements: false
+            sql: |
+              CREATE UNIQUE INDEX ux_team_manager_slot_active
+              ON team_role_assignment (team_id, manager_slot)
+              WHERE role = 'TEAM_MANAGER' AND active;
+              CREATE UNIQUE INDEX ux_team_coordinator_active
+              ON team_role_assignment (team_id)
+              WHERE role = 'PARENT_COORDINATOR' AND active;
+              ALTER TABLE team_role_assignment
+                ADD CONSTRAINT ck_team_manager_slot_range
+                CHECK (manager_slot IS NULL OR manager_slot BETWEEN 1 AND 3);
+              ALTER TABLE team_role_assignment
+                ADD CONSTRAINT ck_team_role_slot
+                CHECK (
+                  (role = 'TEAM_MANAGER' AND manager_slot IS NOT NULL)
+                  OR (role = 'PARENT_COORDINATOR' AND manager_slot IS NULL)
+                );

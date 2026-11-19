@@ -22,12 +22,27 @@ description: "Implementation tasks for club-wide team management"
 
 **Purpose**: Establish the frontend and backend build and local test environment without replacing the existing frontend.
 
-- [ ] T001 Create the Java 21 Spring Boot 4.1.2 Maven project and wrapper in `backend/pom.xml`, `backend/mvnw`, `backend/mvnw.cmd`, and `backend/src/main/java/de/teammanagement/TeamManagementApplication.java`, including web, validation, security, JPA, Liquibase, PostgreSQL, mail, Spring test, and Testcontainers dependencies.
-- [ ] T002 [P] Add Vitest, React Testing Library, Playwright, and `test:run` and `test:e2e` scripts to `package.json` and `package-lock.json`; configure `vite.config.ts` and `playwright.config.ts` for component and browser tests.
-- [ ] T003 [P] Define local PostgreSQL 18 and mail-catcher services in `compose.yaml` and non-secret local configuration in `backend/src/main/resources/application-local.yaml`; use externally supplied credentials and no production defaults.
-- [ ] T004 Configure PostgreSQL, Liquibase startup, Hibernate schema validation, session cookie and SMTP timeout settings in `backend/src/main/resources/application.yaml`; create `backend/src/main/resources/db/changelog/db.changelog-master.yaml` and a test-only profile in `backend/src/test/resources/application.yaml`.
+- [X] T001 Create the Java 21 Spring Boot 4.1.2 Maven project and wrapper in `backend/pom.xml`, `backend/mvnw`, `backend/mvnw.cmd`, and `backend/src/main/java/de/teammanagement/TeamManagementApplication.java`, including web, validation, security, JPA, Liquibase, PostgreSQL, mail, Spring test, and Testcontainers dependencies.
+- [X] T002 [P] Add Vitest, React Testing Library, Playwright, and `test:run` and `test:e2e` scripts to `package.json` and `package-lock.json`; configure `vite.config.ts` and `playwright.config.ts` for component and browser tests.
+- [X] T003 [P] Define local PostgreSQL 18 and mail-catcher services in `compose.yaml` and non-secret local configuration in `backend/src/main/resources/application-local.yaml`; use externally supplied credentials and no production defaults.
+- [X] T004 Configure PostgreSQL, Liquibase startup, Hibernate schema validation, session cookie and SMTP timeout settings in `backend/src/main/resources/application.yaml`; create `backend/src/main/resources/db/changelog/db.changelog-master.yaml` and a test-only profile in `backend/src/test/resources/application.yaml`.
 
 **Checkpoint**: Maven and npm tooling are configured; PostgreSQL and the mail catcher can be started locally.
+
+**Execution status (2026-11-19)**: T001 validated with Java 21 compilation and
+packaging (`-DskipTests package`); T002 validated with lint, TypeScript/Vite
+build, Vitest configuration loading, Playwright version, and a jsdom runtime
+probe. No frontend behavior tests exist yet. T003/T004 configuration passed
+static YAML validation. `mvnw.cmd verify` failed because Testcontainers could
+not find a Docker environment. On 2026-11-19 the user explicitly authorized
+proceeding while deferring tests and Docker validation; no container-backed
+result is claimed.
+
+**Foundation progress (2026-11-19)**: Initial code exists for T005-T007 and
+the contract-serving portion of T010, but those tasks remain incomplete.
+T008-T009 and T011-T012 are unstarted. A clean backend package check passed
+with Java 21 and tests skipped. Frontend lint/build pass; there are no behavior
+tests yet.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 

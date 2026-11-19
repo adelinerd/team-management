@@ -6,7 +6,17 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores([
+    'node_modules',
+    'dist',
+    'build',
+    'coverage',
+    'playwright-report',
+    'test-results',
+    'src/generated/openapi',
+    '**/target',
+    '**/*.min.js',
+  ]),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

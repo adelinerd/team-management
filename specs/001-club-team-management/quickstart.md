@@ -3,6 +3,31 @@
 This guide describes the local validation environment to be delivered with the
 implementation. It does not contain production credentials or seed passwords.
 
+## Current Implementation Checkpoint (2026-11-19)
+
+T001-T004 setup is configured. Foundation implementation has started: initial
+entities and a Liquibase changeset, session/security endpoints, shared
+error/audit helpers, and the OpenAPI contract endpoint are present, but T005-
+T007 and T010 remain incomplete. T008-T009, T011-T012, and all user stories are outstanding; see
+the [task list](./tasks.md).
+
+A clean backend package check succeeded with the configured Java 21 target,
+with tests skipped. On this machine Java 21 is installed, but the current
+`JAVA_HOME` still points to Java 17; set `JAVA_HOME` to Java 21 before Maven
+commands. On Windows, `npm.cmd` avoids the machine's PowerShell restriction
+on `npm.ps1`.
+
+Frontend lint and production build pass, but there are no frontend behavior
+tests yet. Docker-backed startup/integration validation is deferred at the
+user's request; no container-backed result is claimed.
+
+The commands and workflows below describe the intended completed application.
+No seed accounts are provisioned. The current authentication and schema work
+is foundational rather than feature-complete; remaining domain changesets,
+OpenAPI client generation, and user stories are not yet implemented. An empty
+frontend test suite is not a completed acceptance test. See the current setup
+commands in [README.md](../../README.md).
+
 ## Prerequisites
 
 - Java 21 JDK
