@@ -11,7 +11,8 @@ Deliver the responsive React application with a Java 21 / Spring Boot 4.1.2
 REST backend and PostgreSQL 18 persistence. Keep authentication, authorization,
 team-scoped reads and writes, invitation acceptance, and domain invariants on
 the trusted backend. Use Spring Security sessions and CSRF protection for the
-first-party browser client. Database constraints and transactional operations
+first-party browser client. Maintain an API-first OpenAPI contract and generate
+the React application's TypeScript API client with OpenAPI Generator. Database constraints and transactional operations
 protect player transfers, washing assignments, and catering capacity under
 concurrent requests.
 
@@ -28,6 +29,25 @@ backend Java 21 LTS / Spring Boot 4.1.2
 **Primary Dependencies**: Existing React 19, React DOM, Vite 8, and TypeScript
 6; Spring MVC, Spring Security, Spring Data JPA, Jakarta Validation, Liquibase,
 PostgreSQL JDBC, and Spring mail support. Use the Maven Wrapper.
+Use a pinned OpenAPI Generator CLI and its `typescript-fetch` generator for the
+browser API client.
+
+**API contract**: The implementation will maintain the canonical OpenAPI 3.0
+specification in `specs/001-club-team-management/contracts/openapi.yaml`.
+Define each operation before implementing it, serve the maintained
+specification as backend documentation, and generate TypeScript models and
+API calls into `src/generated/openapi/`. A handwritten transport adapter handles
+same-origin sessions and CSRF; generated code is not edited manually.
+
+**Clarified authorization and lifecycle rules**: Model explicit parent access
+per user, family, and team, separately from global family links and management
+roles. Invitation acceptance requires an already-active family-team membership;
+only an explicit team-manager action may reactivate it. Club administrators
+manage families and memberships club-wide and edit the once-bootstrapped club's
+name, key, and time zone. Audit administrative membership changes transactionally.
+Coordinator authority requires active parent membership and explicit access in
+that team. Archived matches and duties are read-only history for all roles,
+including incomplete duties, and never appear as current tasks.
 
 **Storage**: PostgreSQL 18; Liquibase-managed changelogs, with SQL changesets
 where PostgreSQL-specific features are needed. Hibernate validates the migrated
@@ -37,6 +57,9 @@ schema and does not update production schemas.
 Testcontainers with PostgreSQL for backend persistence and concurrency tests;
 Vitest and React Testing Library for frontend unit/component behavior;
 Playwright for browser acceptance tests.
+Validate the OpenAPI specification, regenerate and type-check the client, and
+exercise backend responses and generated-client session/CSRF behavior against
+the contract.
 
 **Target Platform**: Responsive modern browsers on smartphone, tablet, and
 desktop; Java web service and PostgreSQL database. Route browser and API traffic
@@ -95,7 +118,8 @@ specs/001-club-team-management/
 ├── data-model.md
 ├── quickstart.md
 ├── contracts/
-│   └── api-contract.md
+│   ├── api-contract.md      # Domain and behavioral contract
+│   └── openapi.yaml         # Planned canonical machine-readable API contract
 └── tasks.md                  # Created by /speckit-tasks
 ```
 
@@ -115,7 +139,9 @@ src/                          # Existing Vite/React frontend root
 │   ├── matches/
 │   └── assignments/
 ├── lib/
-│   └── api/                  # Typed same-origin HTTP client
+│   └── api/                  # Handwritten session/CSRF transport adapter
+├── generated/
+│   └── openapi/              # Generated TypeScript client; not manually edited
 └── styles/
 
 backend/
@@ -154,6 +180,8 @@ the single-club scope.
 
 The proposed package and feature directories describe implementation
 boundaries; they do not imply that these directories already exist.
+The OpenAPI file and generated client are also implementation deliverables,
+not existing artifacts.
 
 ## Complexity Tracking
 

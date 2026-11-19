@@ -262,12 +262,42 @@ frühere Zuordnungen erhalten bleiben und keine Aufgaben kopiert werden.
   entfernt; zugehörige Aufgaben und historische Nachvollziehbarkeit dürfen nicht
   unbemerkt verfälscht werden.
 
+## Clarifications
+
+### Session 2026-11-19
+
+- Each parent needs explicit access to each team; family membership alone never grants access to another team.
+- A team manager must explicitly reactivate an inactive family-team membership before an invitation can be accepted.
+- Club administrators may view and manage families and memberships across the club; changes are audited.
+- The club is set up once; administrators may subsequently edit its name, unique key, and time zone.
+- A parent coordinator must be an active parent linked to a family in that team.
+- Archived seasons expose matches and duties as read-only history, including incomplete duties; no assignment corrections are permitted.
+
+### Additional Acceptance Checks
+
+- **US1**: After one-time club setup, an administrator can edit name, key, and
+  time zone; a non-administrator cannot edit the club profile.
+- **US2/US6**: A family belongs to Teams A and B. A parent invited only to A
+  cannot list B as a parent context or read B's schedules or family tasks.
+- **US2**: Acceptance against an inactive family-team membership fails without
+  consuming the invitation. After explicit manager reactivation, an otherwise
+  valid invitation can be accepted. Club-wide family administration and
+  membership changes are authorized and audited.
+- **US5**: A manager-only user and a parent of another team cannot be appointed
+  coordinator. Losing active parent eligibility removes effective coordinator
+  authority in that team.
+- **US7**: Archiving a season removes even incomplete duties from current lists,
+  preserves authorized historical reads, and rejects match/duty changes for
+  parents, coordinators, managers, and administrators.
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: Das System MUSS einen Verein mit Name und eindeutiger Kennung sowie
   mehrere zugehörige Mannschaften verwalten können.
+  Nach einmaliger Einrichtung MÜSSEN Vereinsadministratoren Vereinsname,
+  eindeutige Kennung und Zeitzone bearbeiten können.
 - **FR-002**: Ein Vereinsadministrator MUSS Mannschaften mit Name, Saison,
   optionaler Beschreibung und aktivem oder inaktivem Status anlegen, bearbeiten
   und deaktivieren können.
@@ -276,6 +306,8 @@ frühere Zuordnungen erhalten bleiben und keine Aufgaben kopiert werden.
   Mannschaftsverantwortliche bestehen.
 - **FR-004**: Ein Mannschaftsverantwortlicher MUSS eine aktive Elternkoordination
   ernennen oder abberufen können; je Mannschaft DARF höchstens eine aktiv sein.
+  Die ernannte Person MUSS ein aktives Elternteil einer aktiv zugeordneten Familie
+  dieser Mannschaft mit expliziter Zugriffsberechtigung auf diese Mannschaft sein.
 - **FR-005**: Ein Benutzer MUSS mehrere Rollen innerhalb derselben Mannschaft und
   unterschiedliche Rollen in mehreren Mannschaften besitzen können.
 - **FR-006**: Mannschaftsverantwortliche MÜSSEN Familien und deren Zuordnungen
@@ -283,10 +315,17 @@ frühere Zuordnungen erhalten bleiben und keine Aufgaben kopiert werden.
   Familie MUSS einen Familiennamen haben können; Ansprechpartner und
   Kontakt-E-Mail sind optional. Deaktivierte Zuordnungen DÜRFEN keine neuen
   Aufgaben übernehmen; vorhandene Eintragungen bleiben nachvollziehbar.
+  Vereinsadministratoren DÜRFEN Familien und Mitgliedschaften vereinsweit
+  verwalten. Eine deaktivierte Familien-Mannschaftszuordnung MUSS vor Annahme
+  einer Einladung ausdrücklich durch einen Mannschaftsverantwortlichen reaktiviert
+  werden; Einladungen DÜRFEN diese Reaktivierung nicht selbst auslösen.
 - **FR-007**: Eine Familie MUSS mehrere Spieler und mehrere Elternkonten haben
   können. Familien- und Rollenmitgliedschaften MÜSSEN getrennt behandelt werden;
   eine Familie DARF mehreren Mannschaften zugeordnet sein; alle zugehörigen
-  Elternkonten sehen dieselben Familienaufgaben.
+  Elternkonten sehen dieselben Familienaufgaben innerhalb der Mannschaften, für
+  die das jeweilige Elternteil ausdrücklich zugriffsberechtigt ist. Eine
+  Familienzugehörigkeit DARF keinen automatischen Zugriff auf weitere
+  Mannschaften der Familie gewähren.
 - **FR-008**: Benutzer MÜSSEN sich anmelden und dasselbe Konto für mehrere
   Mannschaften verwenden können. Mannschaftsverantwortliche MÜSSEN Eltern über
   eine E-Mail-Adresse zu einer Familie und Mannschaft einladen können. Einladungen
@@ -358,10 +397,16 @@ frühere Zuordnungen erhalten bleiben und keine Aufgaben kopiert werden.
 - **FR-029**: Das System MUSS nur die für die Vereinsorganisation notwendigen
   personenbezogenen Daten verwalten. Ernennungen und Abberufungen von Rollen
   MÜSSEN mit ausführender Person und Zeitpunkt nachvollziehbar sein.
+  Administrative Änderungen an Familien-, Elternzugriffs- und
+  Spielerzuordnungen MÜSSEN ebenfalls mit ausführender Person, Zeitpunkt und
+  betroffener Zuordnung nachvollziehbar protokolliert werden.
 - **FR-030**: Vereinsadministratoren MÜSSEN Saisons verwalten und vergangene
   Spiel- und Aufgabendaten archiviert einsehen können. Familien- und
   Spielerzuordnungen können für eine Folgesaison übernommen werden; Rollen und
   Einladungsstatus müssen dabei erneut geprüft werden.
+  Archivierte Spiele und Aufgaben DÜRFEN nur schreibgeschützt in der Historie
+  erscheinen, nicht als aktuelle Aufgaben; dies gilt auch für unerledigte Aufgaben.
+  Eintragungen und Korrekturen in archivierten Saisons sind für alle Rollen gesperrt.
 - **FR-031**: Ein Vereinsadministrator MUSS für einen Saisonwechsel einzelne oder
   mehrere Spieler mit Vorschau von Quell- und Zielmannschaft sowie Saison versetzen
   können. Erst nach ausdrücklicher Bestätigung wird der Wechsel ausgeführt; ein

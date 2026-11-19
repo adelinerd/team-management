@@ -7,6 +7,8 @@ implementation. It does not contain production credentials or seed passwords.
 
 - Java 21 JDK
 - Node.js 22.12 or later and npm
+- The pinned OpenAPI Generator CLI and generator version installed through the
+  project's npm configuration; Java is required for generation
 - Docker Desktop or another Docker-compatible runtime for PostgreSQL and
   Testcontainers
 - A configured SMTP account for real invitation delivery; local development
@@ -32,10 +34,12 @@ implementation. It does not contain production credentials or seed passwords.
    .\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local
    ```
 
-4. In a second terminal, install frontend dependencies and start Vite:
+4. In a second terminal, install frontend dependencies, generate the API
+   client from the maintained OpenAPI specification, and start Vite:
 
    ```powershell
    npm ci
+   npm run generate:api
    npm run dev
    ```
 
@@ -49,10 +53,22 @@ implementation. It does not contain production credentials or seed passwords.
 Run from the repository root:
 
 ```powershell
+npm run validate:api
+npm run generate:api
 npm run test:run
 npm run lint
 npm run build
 ```
+
+The future `validate:api` and `generate:api` scripts must use the pinned
+generator configuration and `specs/001-club-team-management/contracts/openapi.yaml`
+as input. The output in
+`src/generated/openapi/` is disposable, ignored by version control, and must
+not be edited by hand. Regenerate after every contract change and before
+frontend development, tests, or builds. The backend serves the same
+specification to authenticated users at `GET /api/v1/openapi.yaml` as API
+documentation. Contract tests
+must check implemented responses and generated-client cookie/CSRF behavior.
 
 Run backend tests, including PostgreSQL integration tests (Docker required):
 
@@ -77,13 +93,17 @@ present in the current starter project yet.
 ## Acceptance Validation Scenarios
 
 1. **Team access**: Sign in as a parent of Team A and request Team B's family,
-   roster, match, and assignment data. No Team B data is returned or changed.
+   roster, match, and assignment data, including when the same family belongs
+   to both teams but that parent was invited only to A. No Team B data is
+   returned or changed, including through cross-team family history.
 2. **Role limit**: As a club administrator, appoint three team managers and
    attempt a fourth appointment. The fourth action fails without changing
    existing appointments.
 3. **Family invitation**: Invite two parent accounts for one family, accept
    both invitations, and verify both see the same family assignments. Expired,
    revoked, or reused tokens grant no access.
+   An inactive family-team membership rejects acceptance without consuming the
+   token; only an explicit team-manager reactivation permits subsequent acceptance.
 4. **Concurrent capacity**: Attempt to claim the final washing or catering slot
    from two sessions at once. At most one succeeds and the configured capacity
    is never exceeded.
@@ -96,6 +116,17 @@ present in the current starter project yet.
 7. **Mobile parent workflow**: On a narrow viewport, find the next game, claim
    a free family task, see the success confirmation, and identify the active
    team and updated task status.
+8. **Administration and audit**: Edit club name/key/time zone as an
+   administrator and reject a non-administrator. Manage families across teams;
+   verify actor/time/record audit entries for membership changes, import rows,
+   and transfers, with no successful-change audit entry for rolled-back changes.
+9. **Coordinator eligibility**: Reject appointment of manager-only users or
+   parents from another team. Accept an active parent with explicit access in
+   this team; verify loss of eligibility blocks coordinator operations.
+10. **Read-only archive**: Archive a season with incomplete duties. Verify
+    authorized history remains available, current lists exclude those duties,
+    and all roles are prevented from editing matches or changing assignments,
+    including through imports and corrections.
 
 For the entity constraints and API failure behavior, see
 [data-model.md](./data-model.md) and

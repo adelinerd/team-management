@@ -83,7 +83,8 @@ separately.
 - `active`, `appointedBy`, `createdAt`, `revokedAt`
 
 **Relationships**: A user may have multiple roles on a team and roles on
-multiple teams.
+multiple teams. A parent coordinator must remain an active parent with an
+active family-team membership and explicit parent access for that team.
 
 ### Family and FamilyMembership
 
@@ -107,8 +108,25 @@ multiple teams.
 - `createdAt`, `removedAt`
 
 **Relationships**: A family may belong to multiple teams and have multiple
-parent accounts. A parent account may belong to multiple families. All active
-parents in the same family see the same family assignments.
+parent accounts. A parent account may belong to multiple families. Parents see
+the same family assignments only for teams each parent is explicitly authorized
+to access; family membership alone does not grant team access.
+
+### ParentTeamAccess
+
+An explicit parent grant for one family and team, separate from management roles.
+
+- `id`: stable identifier
+- `userId`, `familyId`, `teamId`: required references; unique as a combination
+- `status`: active or revoked
+- `grantedAt`: required UTC instant
+- `revokedAt`: nullable UTC instant, set on revocation
+
+Access requires an active account, `FamilyMember`, `Family`, `FamilyMembership`,
+and `ParentTeamAccess` for the requested family and team. A grant for one team
+never grants another team's data. Family-task reads, including history, filter
+each result by this grant. Club-wide family administration is a separate
+administrator permission and never substitutes for parent assignment rights.
 
 ### Player and PlayerTeamAssignment
 
@@ -141,8 +159,11 @@ Represents an invitation to join a family in a team.
 - `status`: pending, accepted, expired, or revoked
 - `createdAt`, `expiresAt`, `acceptedAt`, `revokedAt`
 
-**Relationships**: Acceptance creates or activates a `FamilyMember` and the
-associated `FamilyMembership` in one transaction. The token must be unused,
+**Relationships**: Acceptance creates or activates a `FamilyMember` and grants
+`ParentTeamAccess` for only the invited family and team in one transaction.
+The family and its team membership must already be active. A team manager must
+explicitly reactivate an inactive family-team membership first; acceptance
+neither creates nor reactivates that membership. The token must be unused,
 unexpired, unrevoked, and bound to the target email.
 
 ### Match
@@ -249,6 +270,7 @@ Club 1 ── * ClubRole ── 1 UserAccount
 Team 1 ── * TeamRoleAssignment ── 1 UserAccount
 Family 1 ── * FamilyMembership ── 1 Team
 Family 1 ── * FamilyMember ── 1 UserAccount
+UserAccount 1 ── * ParentTeamAccess ── 1 FamilyMembership (familyId, teamId)
 Family 1 ── * Player
 Player 1 ── * PlayerTeamAssignment ── 1 Team
 Team 1 ── * Match
@@ -283,10 +305,23 @@ Team 1 ── * ImportBatch
    against current state; apply valid rows only, report each rejected row, and
    never replace existing washing or catering assignments silently.
 8. Invitation acceptance checks token hash, expiry, revocation, and matching
-   verified email atomically with membership activation. A token can be consumed
-   only once.
+   verified email atomically with family-member activation and the explicit
+   parent-team grant. It rechecks active family-team membership under the same
+   transaction/locking protocol as deactivation. A token can be consumed only once.
 9. Deactivation and archival preserve historical assignments and audit events;
    they prevent new assignments without rewriting old ones.
+10. Every parent read and assignment mutation checks explicit parent-team access,
+    not just family affiliation. Season transfers never create these grants.
+11. Administrative family, family-member, parent-access, and player-assignment
+    mutations, including imports and transfers, record actor, UTC time, and
+    affected record in the same transaction. Rolled-back changes leave no
+    successful-change audit event.
+12. Archived matches and duties allow authorized historical reads only.
+    All match and duty mutations, including corrections and imports, reject archived
+    targets; incomplete duties are excluded from current-task views.
+13. Coordinator authority requires current active parent eligibility on every
+    operation, not only appointment. Losing family membership or parent-team
+    access must not leave effective coordinator privileges.
 
 ## State Transitions
 
@@ -295,7 +330,8 @@ Team 1 ── * ImportBatch
 | Team | active → inactive |
 | Season | planned → active → archived |
 | Team role assignment | active → revoked |
-| Family membership | active → inactive |
+| Family membership | active → inactive; inactive → active only by explicit team-manager action |
+| Parent team access | active → revoked; a valid invitation may explicitly grant access again |
 | Invitation | pending → accepted, expired, or revoked (terminal) |
 | Player team assignment | active → ended |
 | Match | scheduled → cancelled or removed |

@@ -117,7 +117,40 @@
   provides no feature benefit and would create unrelated churn. A public
   third-party API is not required by the SRS.
 
+### OpenAPI and generated client
+
+- **Decision**: The user chose API-first. Maintain an OpenAPI 3.0 contract at
+  `specs/001-club-team-management/contracts/openapi.yaml`, define each
+  operation before implementing it, and publish that same contract as backend
+  API documentation. Pin OpenAPI Generator CLI and generator versions and
+  use `typescript-fetch` to generate browser API methods and models into
+  `src/generated/openapi/`. Do not edit or commit generated output; regenerate
+  it before development, tests, and builds.
+- **Rationale**: A shared, versioned contract documents the backend and avoids
+  manually maintaining a second set of request and response types. Fetch works
+  with the existing browser stack without adding a separate HTTP runtime.
+  Generation covers API communication, not React components or domain logic.
+- **Integration**: A handwritten adapter supplies same-origin credentials and
+  CSRF headers from the server-provided token/header name, handles token renewal
+  after authentication changes, and maps errors without silently retrying
+  non-idempotent operations. Authorization remains server-side. Validate the
+  spec, generated client, backend responses, and this security integration.
+- **Alternatives considered**: Generating OpenAPI from annotated Spring
+  controllers reverses the chosen API-first workflow. Handwriting API types
+  duplicates the contract. Generating Spring server code is not required by
+  the user's client-generation request.
+
 ## Resolved Assumptions
+
+- Clarified on 2026-11-19: parent access is granted explicitly per family/team;
+  no automatic access follows a family's other team memberships or a player
+  transfer. Invitation acceptance requires active family-team membership;
+  reactivation is an explicit team-manager action.
+- Club administrators may manage families and memberships club-wide, with
+  transactional audit records, and edit the one-time-bootstrapped club profile.
+- Coordinators must be active parents with explicit access in their team.
+  Archived matches and duties are read-only history for every role, including
+  incomplete duties; corrections are not allowed.
 
 - The first deployment serves one club with multiple teams; cross-club SaaS
   tenancy is outside the current feature.
@@ -151,3 +184,5 @@
 - [Vitest getting started](https://vitest.dev/guide/)
 - [React Testing Library introduction](https://testing-library.com/docs/react-testing-library/intro/)
 - [Playwright introduction](https://playwright.dev/docs/intro)
+- [OpenAPI Generator TypeScript Fetch generator](https://openapi-generator.tech/docs/generators/typescript-fetch/)
+- [OpenAPI Generator CLI usage](https://openapi-generator.tech/docs/usage/)
