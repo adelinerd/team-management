@@ -55,8 +55,9 @@ public class ApiExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ProblemDetail> handleUnexpected(Exception exception,
 			HttpServletRequest request) {
+		var correlationId = correlationId(request);
 		logger.error("Unhandled API exception (correlationId={})",
-				request.getAttribute(CorrelationIdFilter.ATTRIBUTE), exception);
+				correlationId, exception);
 		return problem(HttpStatus.INTERNAL_SERVER_ERROR,
 				"An unexpected error occurred", request);
 	}
@@ -71,9 +72,17 @@ public class ApiExceptionHandler {
 		var response = ProblemDetail.forStatusAndDetail(status, detail);
 		response.setTitle(status.getReasonPhrase());
 		response.setInstance(java.net.URI.create(request.getRequestURI()));
-		var correlationId = request.getAttribute(CorrelationIdFilter.ATTRIBUTE);
-		response.setProperty("correlationId",
-				correlationId == null ? UUID.randomUUID().toString() : correlationId.toString());
+		response.setProperty("correlationId", correlationId(request).toString());
 		return response;
+	}
+
+	private UUID correlationId(HttpServletRequest request) {
+		var correlationId = request.getAttribute(CorrelationIdFilter.ATTRIBUTE);
+		if (correlationId instanceof UUID id) {
+			return id;
+		}
+		var generatedId = UUID.randomUUID();
+		request.setAttribute(CorrelationIdFilter.ATTRIBUTE, generatedId);
+		return generatedId;
 	}
 }

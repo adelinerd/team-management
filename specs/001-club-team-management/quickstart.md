@@ -7,9 +7,11 @@ implementation. It does not contain production credentials or seed passwords.
 
 T001-T006, T008, and T009 implementation is in place. The API-first
 `typescript-fetch` client is generated from the canonical contract, and
-session/CSRF client tests pass. T007 still needs family-membership
-authorization; T010-T011 remain outstanding. Import staging is deferred to
-T066-T067 so it does not block the first customer-demo increments. See the
+session/CSRF client tests pass. T007's club/team/family authorization helpers,
+safe errors, correlation IDs, and secret-safe audit checks are implemented;
+T010-T011 remain outstanding. Import staging is deferred to T066-T067 so it
+does not block the first customer-demo increments. PostgreSQL-backed validation
+remains unverified until the Podman machine is configured. See the
 [task list](./tasks.md).
 
 Java 21 clean packaging, frontend lint/build, OpenAPI validation, and focused

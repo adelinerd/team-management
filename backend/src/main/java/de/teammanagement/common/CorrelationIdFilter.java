@@ -20,9 +20,9 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 			FilterChain filterChain) throws ServletException, IOException {
-		var correlationId = UUID.randomUUID().toString();
+		var correlationId = UUID.randomUUID();
 		request.setAttribute(ATTRIBUTE, correlationId);
-		response.setHeader(HEADER, correlationId);
+		response.setHeader(HEADER, correlationId.toString());
 		filterChain.doFilter(request, response);
 	}
 }

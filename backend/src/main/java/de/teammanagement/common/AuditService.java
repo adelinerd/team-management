@@ -19,6 +19,7 @@ public class AuditService {
 			".*(password|token|secret|email|phone|address|contact|name|birth|personal).*",
 			Pattern.CASE_INSENSITIVE);
 	private static final Pattern FIELD_NAME = Pattern.compile("[A-Za-z][A-Za-z0-9.]*");
+	private static final Pattern SAFE_METADATA = Pattern.compile("[A-Za-z][A-Za-z0-9_.-]*");
 
 	private final AuditEventRepository events;
 
@@ -33,9 +34,19 @@ public class AuditService {
 				|| !(authentication.getPrincipal() instanceof TeamUserDetails user)) {
 			throw new AccessDeniedException("Authenticated actor required for audit");
 		}
+		validateSafeMetadata(eventType);
+		validateSafeMetadata(entityType);
 		var details = serializeChangedFields(changedFieldNames);
 		return events.save(new AuditEvent(clubId, user.id(), eventType,
 				entityType, entityId, details));
+	}
+
+	private void validateSafeMetadata(String value) {
+		if (value == null || !SAFE_METADATA.matcher(value).matches()
+				|| SENSITIVE_FIELD.matcher(value).matches()) {
+			throw new IllegalArgumentException(
+					"Audit metadata may contain only non-sensitive identifiers");
+		}
 	}
 
 	private String serializeChangedFields(List<String> changedFieldNames) {
