@@ -5,11 +5,12 @@ implementation. It does not contain production credentials or seed passwords.
 
 ## Current Implementation Checkpoint (2026-11-20)
 
-T001-T006, T008, and T010 implementation is in place. The API-first
+T001-T006, T008, and T009 implementation is in place. The API-first
 `typescript-fetch` client is generated from the canonical contract, and
 session/CSRF client tests pass. T007 still needs family-membership
-authorization; T009 and T011 remain outstanding; T012 backend integration
-coverage is incomplete. See the [task list](./tasks.md).
+authorization; T010-T011 remain outstanding. Import staging is deferred to
+T066-T067 so it does not block the first customer-demo increments. See the
+[task list](./tasks.md).
 
 Java 21 clean packaging, frontend lint/build, OpenAPI validation, and focused
 client tests pass. Docker-backed validation is not claimed: Podman Desktop is
@@ -18,8 +19,8 @@ Windows, use `npm.cmd` if PowerShell blocks `npm.ps1`.
 
 The commands and workflows below describe the intended completed application.
 No seed accounts are provisioned. The current authentication and schema work
-is foundational rather than feature-complete; remaining domain changesets,
-OpenAPI client generation, and user stories are not yet implemented. An empty
+is foundational rather than feature-complete; remaining domain changesets and
+user stories are not yet implemented. An empty
 frontend test suite is not a completed acceptance test. See the current setup
 commands in [README.md](../../README.md).
 
