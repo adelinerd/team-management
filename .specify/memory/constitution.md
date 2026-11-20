@@ -1,15 +1,13 @@
 <!--
 Sync Impact Report
-Version change: unversioned scaffold -> 1.0.0 (initial project constitution)
-Modified principles: none previously defined; five principles replace unresolved template slots:
-  added Team-Scoped Authorization and Least Privilege
-  added Privacy by Default
-  added Domain Integrity and Traceable History
-  added Mobile-First, Role-Aware Usability
-  added Verifiable, Focused Changes
-Added sections: Additional Constraints; Development Workflow and Quality Gates
+Version change: 1.0.0 -> 1.1.0
+Modified principles: none
+Modified sections: Additional Constraints; Development Workflow and Quality Gates
+Added sections: none
 Removed sections: none
 Follow-up TODO: confirm the original ratification date with the project owner.
+Follow-up TODO: align container setup and test artifacts with Podman Desktop and
+  validate them once Podman Desktop is installed.
 -->
 
 # Mannschaftsmanagement Constitution
@@ -77,6 +75,9 @@ Aufgaben-, Saison- oder Spielerhistorie nicht stillschweigend entfernen oder
   Zuordnungen ausweisen.
 - Sicherheits- und Datenintegritätsregeln DÜRFEN nicht ausschließlich in der
   Benutzeroberfläche umgesetzt werden.
+- Die lokale Containerumgebung MUSS Podman Desktop unterstützen und DARF keine
+  Installation von Docker Desktop oder Docker Engine voraussetzen. Dies gilt
+  auch für lokale Dienste, Compose-Abläufe und containerbasierte Tests.
 
 ## Development Workflow and Quality Gates
 
@@ -90,6 +91,10 @@ Aufgaben-, Saison- oder Spielerhistorie nicht stillschweigend entfernen oder
 - Vor einer Freigabe MÜSSEN die relevanten Tests sowie `npm run lint` und
   `npm run build` erfolgreich sein. Diese statischen Prüfungen ersetzen keine
   Verhaltens- oder Berechtigungsprüfung.
+- Die Einrichtung und Ausführung containerbasierter Tests MÜSSEN für Podman
+  Desktop dokumentiert und unter dieser Umgebung überprüft werden. Fehlende
+  Container-Laufzeiten oder nicht ausgeführte Tests MÜSSEN als offene
+  Validierung ausgewiesen werden und gelten nicht als bestandene Tests.
 - Reviews MÜSSEN Änderungen an Datenschutz, Rollen, Teamgrenzen, Historie und
   Datenimport ausdrücklich gegen diese Verfassung prüfen. Abweichungen benötigen
   eine dokumentierte Begründung und Genehmigung vor der Freigabe.
@@ -112,4 +117,4 @@ Bei Spezifikation, Planung, Review und Freigabe muss die Konformität geprüft
 werden. Nicht erfüllte Regeln oder genehmigte Ausnahmen müssen mit Umfang,
 Begründung, Genehmigung und gegebenenfalls einem Ablaufdatum dokumentiert sein.
 
-**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): ursprüngliches Annahmedatum nicht dokumentiert | **Last Amended**: 2026-11-19
+**Version**: 1.1.0 | **Ratified**: TODO(RATIFICATION_DATE): ursprüngliches Annahmedatum nicht dokumentiert | **Last Amended**: 2026-11-19

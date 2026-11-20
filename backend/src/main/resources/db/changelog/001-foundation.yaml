@@ -298,20 +298,30 @@ databaseChangeLog:
               - column:
                   name: season_id
         - sql:
-            splitStatements: false
             sql: |
               CREATE UNIQUE INDEX ux_team_manager_slot_active
               ON team_role_assignment (team_id, manager_slot)
-              WHERE role = 'TEAM_MANAGER' AND active;
+              WHERE role = 'TEAM_MANAGER' AND active
+        - sql:
+            sql: |
+              CREATE UNIQUE INDEX ux_team_manager_user_active
+              ON team_role_assignment (team_id, user_id)
+              WHERE role = 'TEAM_MANAGER' AND active
+        - sql:
+            sql: |
               CREATE UNIQUE INDEX ux_team_coordinator_active
               ON team_role_assignment (team_id)
-              WHERE role = 'PARENT_COORDINATOR' AND active;
+              WHERE role = 'PARENT_COORDINATOR' AND active
+        - sql:
+            sql: |
               ALTER TABLE team_role_assignment
-                ADD CONSTRAINT ck_team_manager_slot_range
-                CHECK (manager_slot IS NULL OR manager_slot BETWEEN 1 AND 3);
+              ADD CONSTRAINT ck_team_manager_slot_range
+              CHECK (manager_slot IS NULL OR manager_slot BETWEEN 1 AND 3)
+        - sql:
+            sql: |
               ALTER TABLE team_role_assignment
-                ADD CONSTRAINT ck_team_role_slot
-                CHECK (
-                  (role = 'TEAM_MANAGER' AND manager_slot IS NOT NULL)
-                  OR (role = 'PARENT_COORDINATOR' AND manager_slot IS NULL)
-                );
+              ADD CONSTRAINT ck_team_role_slot
+              CHECK (
+                (role = 'TEAM_MANAGER' AND manager_slot IS NOT NULL)
+                OR (role = 'PARENT_COORDINATOR' AND manager_slot IS NULL)
+              )

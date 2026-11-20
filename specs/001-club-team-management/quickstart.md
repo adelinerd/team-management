@@ -3,23 +3,18 @@
 This guide describes the local validation environment to be delivered with the
 implementation. It does not contain production credentials or seed passwords.
 
-## Current Implementation Checkpoint (2026-11-19)
+## Current Implementation Checkpoint (2026-11-20)
 
-T001-T004 setup is configured. Foundation implementation has started: initial
-entities and a Liquibase changeset, session/security endpoints, shared
-error/audit helpers, and the OpenAPI contract endpoint are present, but T005-
-T007 and T010 remain incomplete. T008-T009, T011-T012, and all user stories are outstanding; see
-the [task list](./tasks.md).
+T001-T006, T008, and T010 implementation is in place. The API-first
+`typescript-fetch` client is generated from the canonical contract, and
+session/CSRF client tests pass. T007 still needs family-membership
+authorization; T009 and T011 remain outstanding; T012 backend integration
+coverage is incomplete. See the [task list](./tasks.md).
 
-A clean backend package check succeeded with the configured Java 21 target,
-with tests skipped. On this machine Java 21 is installed, but the current
-`JAVA_HOME` still points to Java 17; set `JAVA_HOME` to Java 21 before Maven
-commands. On Windows, `npm.cmd` avoids the machine's PowerShell restriction
-on `npm.ps1`.
-
-Frontend lint and production build pass, but there are no frontend behavior
-tests yet. Docker-backed startup/integration validation is deferred at the
-user's request; no container-backed result is claimed.
+Java 21 clean packaging, frontend lint/build, OpenAPI validation, and focused
+client tests pass. Docker-backed validation is not claimed: Podman Desktop is
+installed, but the current CLI has no configured machine or connection. On
+Windows, use `npm.cmd` if PowerShell blocks `npm.ps1`.
 
 The commands and workflows below describe the intended completed application.
 No seed accounts are provisioned. The current authentication and schema work
@@ -34,41 +29,53 @@ commands in [README.md](../../README.md).
 - Node.js 22.12 or later and npm
 - The pinned OpenAPI Generator CLI and generator version installed through the
   project's npm configuration; Java is required for generation
-- Docker Desktop or another Docker-compatible runtime for PostgreSQL and
-  Testcontainers
+- Podman Desktop with a configured, running Podman machine and a Compose
+  provider. Docker Desktop and Docker Engine are not required.
 - A configured SMTP account for real invitation delivery; local development
   uses a disposable mail catcher
 
 ## Start the Application Locally
 
-1. Start the local PostgreSQL database and mail catcher from the repository
+1. Confirm a Podman machine is configured. If none exists, create one in
+   Podman Desktop. Start the configured machine and verify the CLI connection:
+
+   ```powershell
+   podman machine list
+   podman machine start
+   podman info
+   podman compose version
+   ```
+
+2. Start the local PostgreSQL database and mail catcher from the repository
    root:
 
    ```powershell
-   docker compose up -d postgres mailpit
+   podman compose up -d postgres mailpit
    ```
 
-2. Configure local backend values outside source control, including database
+3. Configure local backend values outside source control, including database
    URL/user/password and the mail-catcher host. Do not use production
    credentials in local files.
-3. Start the backend. Liquibase applies the checked-in changelogs; the local
-   profile provides test-only club data and an explicit test administrator:
+4. To create local club/team/admin fixtures, set `LOCAL_SEED_ENABLED=true` and
+   provide `LOCAL_ADMIN_EMAIL` and `LOCAL_ADMIN_PASSWORD` outside source
+   control. The local profile ignores those settings by default.
+5. Start the backend. Liquibase applies the checked-in changelogs:
 
    ```powershell
    Set-Location backend
    .\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local
    ```
 
-4. In a second terminal, install frontend dependencies, generate the API
-   client from the maintained OpenAPI specification, and start Vite:
+6. In a second terminal, install frontend dependencies and start Vite:
 
    ```powershell
    npm ci
-   npm run generate:api
    npm run dev
    ```
 
-5. Open the Vite local URL. Its `/api/v1` requests proxy to the local backend.
+   The dev script generates the API client before starting Vite.
+
+7. Open the Vite local URL. Its `/api/v1` requests proxy to the local backend.
    The local administrator and invitation accounts are created by the
    development seed, not by production defaults. Invitation emails are visible
    only in the local mail catcher.
@@ -85,9 +92,9 @@ npm run lint
 npm run build
 ```
 
-The future `validate:api` and `generate:api` scripts must use the pinned
-generator configuration and `specs/001-club-team-management/contracts/openapi.yaml`
-as input. The output in
+The `validate:api` and `generate:api` scripts use the pinned generator
+configuration and `specs/001-club-team-management/contracts/openapi.yaml` as
+input. The output in
 `src/generated/openapi/` is disposable, ignored by version control, and must
 not be edited by hand. Regenerate after every contract change and before
 frontend development, tests, or builds. The backend serves the same
@@ -95,7 +102,13 @@ specification to authenticated users at `GET /api/v1/openapi.yaml` as API
 documentation. Contract tests
 must check implemented responses and generated-client cookie/CSRF behavior.
 
-Run backend tests, including PostgreSQL integration tests (Docker required):
+Run backend tests, including PostgreSQL integration tests. On Windows, use
+the Podman machine pipe as the Docker-compatible API endpoint for Testcontainers:
+
+```powershell
+$podmanPipe = podman machine inspect --format '{{.ConnectionInfo.PodmanPipe.Path}}'
+$env:DOCKER_HOST = "npipe://$($podmanPipe -replace '\\', '/')"
+```
 
 ```powershell
 Set-Location backend
@@ -112,8 +125,8 @@ Set-Location ..
 npm run test:e2e
 ```
 
-The implementation must add these scripts and local services; they are not
-present in the current starter project yet.
+The local services and validation scripts are configured. Remaining
+domain-specific services, story APIs, and UI are tracked in [tasks.md](./tasks.md).
 
 ## Acceptance Validation Scenarios
 

@@ -5,22 +5,28 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "npm run generate:api",
     "build": "tsc -b && vite build",
+    "prebuild": "npm run generate:api",
     "lint": "eslint .",
     "preview": "vite preview",
     "test:run": "vitest run",
-    "test:e2e": "playwright test"
+    "pretest:run": "npm run generate:api",
+    "test:e2e": "playwright test",
+    "validate:api": "openapi-generator-cli validate -i specs/001-club-team-management/contracts/openapi.yaml",
+    "generate:api": "openapi-generator-cli generate -i specs/001-club-team-management/contracts/openapi.yaml -g typescript-fetch -o src/generated/openapi --additional-properties=supportsES6=true,typescriptThreePlus=true,useSingleRequestParameter=true"
   },
   "dependencies": {
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@openapitools/openapi-generator-cli": "2.42.2",
     "@playwright/test": "1.65.1",
     "@testing-library/jest-dom": "8.0.0",
     "@testing-library/react": "16.3.3",
     "@testing-library/user-event": "14.6.13",
-    "@eslint/js": "^10.0.1",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

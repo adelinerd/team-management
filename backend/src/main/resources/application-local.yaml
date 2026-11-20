@@ -11,6 +11,14 @@ spring:
       "[mail.smtp.starttls.enable]": false
       "[mail.smtp.starttls.required]": false
 
+local:
+  seed:
+    enabled: ${LOCAL_SEED_ENABLED:false}
+    club-name: ${LOCAL_CLUB_NAME:Local Football Club}
+    club-key: ${LOCAL_CLUB_KEY:local}
+    admin-email: ${LOCAL_ADMIN_EMAIL:}
+    admin-password: ${LOCAL_ADMIN_PASSWORD:}
+
 server:
   address: 127.0.0.1
   servlet:
