@@ -4,11 +4,12 @@ React/TypeScript frontend and Java 21 / Spring Boot 4.1.2 backend.
 
 ## Implementation status
 
-The setup checkpoint and foundational entities, session/security endpoints,
-local-only seed, generated TypeScript client, and packaged OpenAPI endpoint
-are in place. Family authorization, import staging, the application shell,
-and user-story APIs/UI remain outstanding. PostgreSQL/Testcontainers runtime
-validation has not yet been confirmed. See the
+The setup checkpoint, foundational entities, session/security endpoints,
+local-only seed, authorization helpers, generated TypeScript client, packaged
+OpenAPI endpoint, and basic login/application shell are in place. Workspace
+pages are placeholders; team selection, import staging, and user-story APIs/UI
+remain outstanding. PostgreSQL/Testcontainers startup has been verified with
+Podman. See the
 [implementation tasks](specs/001-club-team-management/tasks.md) for status.
 
 ## Requirements
@@ -54,6 +55,8 @@ only when `LOCAL_SEED_ENABLED=true`; `LOCAL_ADMIN_EMAIL` and
 defaults require secure cookies, authenticated SMTP with STARTTLS, and
 externally supplied `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`,
 `SMTP_HOST`, `SMTP_USERNAME`, and `SMTP_PASSWORD`.
+The seed runs only if no club exists; changing these values does not update an
+existing administrator.
 
 ## Frontend
 
@@ -65,7 +68,9 @@ npm.cmd run dev
 ```
 
 The dev, build, and frontend-test scripts generate the ignored client from the
-canonical OpenAPI file automatically.
+canonical OpenAPI file automatically. Open the Vite URL and sign in with the
+local administrator if the optional seed was enabled. The shell's other
+workspace pages are placeholders until their corresponding tasks are completed.
 
 ## Validation
 

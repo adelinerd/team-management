@@ -5,26 +5,21 @@ implementation. It does not contain production credentials or seed passwords.
 
 ## Current Implementation Checkpoint (2026-11-20)
 
-T001-T006, T008, and T009 implementation is in place. The API-first
-`typescript-fetch` client is generated from the canonical contract, and
-session/CSRF client tests pass. T007's club/team/family authorization helpers,
-safe errors, correlation IDs, and secret-safe audit checks are implemented;
-T010-T011 remain outstanding. Import staging is deferred to T066-T067 so it
-does not block the first customer-demo increments. PostgreSQL-backed validation
-remains unverified until the Podman machine is configured. See the
-[task list](./tasks.md).
+T001-T010 are implemented. The API-first client, session/CSRF handling,
+authorization helpers, and basic login and role-aware shell are in place.
+Workspace pages and team selection remain placeholders; T011's foundation
+integration tests and the user stories remain outstanding. Import staging is
+deferred to T066-T067. See the [task list](./tasks.md).
 
-Java 21 clean packaging, frontend lint/build, OpenAPI validation, and focused
-client tests pass. Docker-backed validation is not claimed: Podman Desktop is
-installed, but the current CLI has no configured machine or connection. On
-Windows, use `npm.cmd` if PowerShell blocks `npm.ps1`.
+Frontend tests, lint, and build pass. PostgreSQL startup and Liquibase have
+been verified through Testcontainers and Podman. On Windows, use `npm.cmd`
+if PowerShell blocks `npm.ps1`.
 
 The commands and workflows below describe the intended completed application.
-No seed accounts are provisioned. The current authentication and schema work
-is foundational rather than feature-complete; remaining domain changesets and
-user stories are not yet implemented. An empty
-frontend test suite is not a completed acceptance test. See the current setup
-commands in [README.md](../../README.md).
+Local seed accounts are optional and require explicit configuration; the
+remaining domain changesets and user stories are not yet implemented. Browser
+acceptance journeys are not yet implemented. See the current setup commands in
+[README.md](../../README.md).
 
 ## Prerequisites
 
@@ -79,9 +74,8 @@ commands in [README.md](../../README.md).
    The dev script generates the API client before starting Vite.
 
 7. Open the Vite local URL. Its `/api/v1` requests proxy to the local backend.
-   The local administrator and invitation accounts are created by the
-   development seed, not by production defaults. Invitation emails are visible
-   only in the local mail catcher.
+   The optional development seed creates an administrator only on an empty
+   database. Invitation workflows are not implemented yet.
 
 ## Quality and Test Commands
 
